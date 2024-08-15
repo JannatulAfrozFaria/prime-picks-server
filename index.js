@@ -7,6 +7,10 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/',(res,req)=>{
-    res.setEncoding('prime picks is running')
+app.get('/',(req,res)=>{
+    res.send('prime picks is running')
+})
+
+app.listen(port, ()=>{
+    console.log(`Prime Picks is running on port ${port}`);
 })
