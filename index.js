@@ -25,18 +25,34 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    const medicineCollection = client.db("primePicksDB").collection("medicines");
-
+    const medicineCollection = client.db("primePricksDB").collection("medicineSet");
+    //
+    // const itemsPerPage = 9;
+    //
     app.get('/medicines', async(req,res)=>{
-        const result = await medicineCollection.find().toArray();
-        res.send(result);
+      const result = await medicineCollection.find().toArray();
+      res.send(result);
+        //
+        // const page =req.query.page || 1;
+        // const query = {}
+        // const count = await medicineCollection.estimatedDocumentCount(query)
+        // const items = await medicineCollection.find(query).toArray();
+        // const pageCount = count / itemsPerPage; //40 items/9 =4
+        // return{
+        //   pagination:{
+        //     count,
+        //     pageCount,
+        //   },
+        //   items
+        // }
+        //
     })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
