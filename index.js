@@ -26,27 +26,46 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const medicineCollection = client.db("primePricksDB").collection("medicineSet");
-    //
-    // const itemsPerPage = 9;
-    //
-    app.get('/medicines', async(req,res)=>{
-      const result = await medicineCollection.find().toArray();
-      res.send(result);
-        //
-        // const page =req.query.page || 1;
-        // const query = {}
-        // const count = await medicineCollection.estimatedDocumentCount(query)
-        // const items = await medicineCollection.find(query).toArray();
-        // const pageCount = count / itemsPerPage; //40 items/9 =4
-        // return{
-        //   pagination:{
-        //     count,
-        //     pageCount,
-        //   },
-        //   items
-        // }
-        //
+    
+    // app.get('/medicines', async(req,res)=>{
+    //   const result = await medicineCollection.find().toArray();
+    //   res.send(result);
+    // })
+    
+    const itemsPerPage = 9;
+    app.get('/medicines', async (req, res) => {
+      const page = req.query.page || 1;
+      const searchedItem = req.query.search || '';
+      const brandFilter = req.query.brand || '';
+      const categoryFilter = req.query.category || '';
+      const priceMinimum = parseFloat(req.query.priceMin);
+      const priceMaximum = parseFloat(req.query.priceMax);
+      const sortByPrice = req.query.order === 'asc' ? 1 : req.query.order === 'dsc' ? -1 : 1
+      const query = {}
+      if(brandFilter){
+        query.brandName = decodeURIComponent(brandFilter)
+      }
+      if(categoryFilter){
+        query.categoryName = decodeURIComponent(categoryFilter)
+      }
+      if(priceMinimum && priceMaximum){
+        query.price = {$gte: priceMinimum, $lte: priceMaximum}
+      }
+      const count = await medicineCollection.estimatedDocumentCount(query)
+      const items = await medicineCollection.find(query, {$text: { $search: searchedItem }}).sort({"price": sortByPrice}).skip(9 * (page - 1)).limit(9).toArray();
+      const pageCount = Math.ceil(count / itemsPerPage); //40 items/9 =4
+      console.log(brandFilter);
+      // console.log(page, count, items);
+      res.send(JSON.stringify({
+        pagination: {
+          count,
+          pageCount,
+        },
+        items
+      })
+      )
     })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
