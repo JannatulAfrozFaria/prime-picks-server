@@ -66,6 +66,14 @@ async function run() {
       )
     })
 
+    // medicine -----DETAILS------
+    app.get('/medicine/:id', logger, async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await medicineCollection.findOne(query);
+      res.send(result);
+  })
+
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     // console.log("Pinged your deployment. You successfully connected to MongoDB!");
